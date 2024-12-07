@@ -9,7 +9,6 @@ class MultisportDB:
         self.password = password
         self.port = port
         self.conn = None
-        
 
     def connect(self):
         try:
@@ -62,6 +61,37 @@ class MultisportApp:
         self.db.execute_query(query, params)
         print("Usuário cadastrado com sucesso!")
 
+    def cadastrar_transmissao(self):
+        print("\nCadastro de Transmissão:")
+        numero_transmissao = input("Digite o número da transmissão: ")
+        horario_inicio = input("Digite o horário de início (YYYY-MM-DD HH:MM:SS): ")
+        duracao = input("Digite a duração em minutos: ")
+        qualidade = input("Digite a qualidade (ex.: 720p, 1080p, 4K): ")
+        nome_esporte = input("Digite o nome do esporte: ")
+        nome_evento = input("Digite o nome do evento: ")
+
+        query = """
+        INSERT INTO Transmissao (numero_transmissao, horario_inicio, duracao, qualidade, nome_esporte, nome_evento)
+        VALUES (%s, %s, %s, %s, %s, %s);
+        """
+        params = (numero_transmissao, horario_inicio, duracao, qualidade, nome_esporte, nome_evento)
+        self.db.execute_query(query, params)
+        print("Transmissão cadastrada com sucesso!")
+
+    def login_usuario(self):
+        print("\nLogin de Usuário:")
+        email = input("Digite o e-mail: ")
+        query = """
+        SELECT nome, tipo_conta FROM Usuario WHERE email = %s;
+        """
+        params = (email,)
+        result = self.db.execute_query(query, params, fetch=True)
+        if result:
+            nome, tipo_conta = result[0]
+            print(f"Bem-vindo, {nome}! Sua conta é do tipo: {tipo_conta}.")
+        else:
+            print("Usuário não encontrado. Verifique o e-mail informado.")
+
     def consultar_transmissoes_por_esporte(self):
         print("\nConsulta de Transmissões por Esporte:")
         esporte = input("Digite o nome do esporte: ")
@@ -83,16 +113,22 @@ class MultisportApp:
     def menu(self):
         while True:
             print("\nMenu Principal:")
-            print("1. Cadastrar Usuário")
-            print("2. Consultar Transmissões por Esporte")
-            print("3. Sair")
+            print("1. Login de Usuário")
+            print("2. Cadastrar Usuário")
+            print("3. Cadastrar Transmissão")
+            print("4. Consultar Transmissões por Esporte")
+            print("5. Sair")
             opcao = input("Escolha uma opção: ")
 
             if opcao == "1":
-                self.cadastrar_usuario()
+                self.login_usuario()
             elif opcao == "2":
-                self.consultar_transmissoes_por_esporte()
+                self.cadastrar_usuario()
             elif opcao == "3":
+                self.cadastrar_transmissao()
+            elif opcao == "4":
+                self.consultar_transmissoes_por_esporte()
+            elif opcao == "5":
                 print("Encerrando aplicação...")
                 break
             else:
@@ -106,7 +142,7 @@ if __name__ == "__main__":
         "database": "multisport",
         "user": "postgres",
         "password": "12345",
-        "port" : "12345"
+        "port": "12345"
     }
 
     # Instância do banco e conexão
